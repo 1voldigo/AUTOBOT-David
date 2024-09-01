@@ -1,33 +1,39 @@
-const axios = require('axios');
+const { Hercai } = require('hercai');
+const herc = new Hercai();
+
 module.exports.config = {
   name: 'ai',
-  version: '1.0.0',
-  role: 0,
+  version: '1.1.0',
+  hasPermssion: 0,
+  credits: 'Yan Maglinte | Liane Cagara',
+  description: 'An AI command using Hercai API!',
   hasPrefix: false,
-  aliases: ['gpt', 'openai'],
-  description: "An AI command powered by GPT-4",
-  usage: "Ai [promot]",
-  credits: '𝗮𝗲𝘀𝘁𝗵𝗲𝗿',
-  cooldown: 3,
+  allowPrefix: true,
+  commandCategory: 'chatbots',
+  usages: 'Ai [prompt]',
+  cooldowns: 5,
 };
-module.exports.run = async function({
-  api,
-  event,
-  args
-}) {
-  const input = args.join(' ');
-  if (!input) {
-    api.sendMessage(`♡   ∩_∩\n    （„• ֊ •„)♡\n┏━∪∪━━━━ღ❦ღ┓`, event.threadID, event.messageID);
-    return;
+
+module.exports.run = async function ({ api, event, args, box }) {
+  const prompt = args.join(' ');
+  if (!box) {
+    return api.sendMessage(`Unsupported.`, event.threadID);
   }
-  api.sendMessage(``, event.threadID, event.messageID);
+
   try {
-    const {
-      data
-    } = await axios.get(`https://hashier-api-globalgpt.vercel.app/api/globalgpt?q=${encodeURIComponent(input)}`);
-    const response = data.response;
-    api.sendMessage('♡   ∩_∩\n    （„• ֊ •„)♡\n┏━∪∪━━━━ღ❦ღ┓\n🌐['+ response +'] ♡\n♡   VOLDIGOANOS[📩]\n┗ღ❦ღ━━━━━━━┛\n[✦]|𝗚𝗣𝗧-𝟰 ', event.threadID, event.messageID);
+    // Available Models: "https://metoushela-rest-api-tp5g.onrender.com/api/gpt4o?"
+    if (!prompt) {
+      box.reply('Please specify a message!');
+      box.react('❓');
+    } else {
+      const info = await box.reply(`Fetching answer...`);
+      box.react('⏱️');
+      const response = await herc.question({ model: 'v3', content: prompt });
+      await box.edit(response.reply, info.messageID);
+      box.react('');
+    }
   } catch (error) {
-    api.sendMessage, event.threadID, event.messageID);
+    box.reply('⚠️ Something went wrong: ' + error);
+    box.react('⚠️');
   }
-};
+};￼Enter￼Enter
